@@ -12,13 +12,13 @@
         "identity",
         "kyc"
     ],
-    "homepage": "https://github.com/gateman-io/node-sdk#readme",
+    "homepage": "https://github.com/gateman-devs/gateman-sdk-js#readme",
     "bugs": {
-        "url": "https://github.com/gateman-io/node-sdk/issues"
+        "url": "https://github.com/gateman-devs/gateman-sdk-js/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/gateman-io/node-sdk.git"
+        "url": "git+https://github.com/gateman-devs/gateman-sdk-js.git"
     },
     "license": "MIT",
     "author": "Gateman",
