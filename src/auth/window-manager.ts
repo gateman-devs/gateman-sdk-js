@@ -12,23 +12,23 @@ export class WindowManager {
 
     /**
      * Open authentication popup window
-     * @param url - Authentication URL to navigate to
-     * @param allowedOrigin - Allowed origin for postMessage
+     * @param urlFactory - Function that returns the authentication URL (can be async)
      * @returns Promise that resolves when authentication completes
      */
     async openAuthWindow(
-        url: string,
+        urlFactory: string | (() => string | Promise<string>),
     ): Promise<AuthMessage> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             // Calculate popup dimensions and position
             const width = 500;
             const height = 700;
             const left = window.screen.width / 2 - width / 2;
             const top = window.screen.height / 2 - height / 2;
 
-            // Open popup directly with auth URL
+            // Open popup IMMEDIATELY with blank page to avoid popup blockers
+            // We'll navigate to the auth URL once it's ready
             this.popup = window.open(
-                url,
+                'about:blank',
                 'gateman_auth',
                 `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
             );
@@ -38,6 +38,14 @@ export class WindowManager {
                 reject(new Error('Authentication popup was blocked by the browser'));
                 return;
             }
+
+            // Get the URL (either directly or from factory function)
+            const url = typeof urlFactory === 'function'
+                ? await urlFactory()
+                : urlFactory;
+
+            // Navigate the popup to the auth URL
+            this.popup.location.href = url;
 
             // Set up timeout
             const timeoutId = setTimeout(() => {

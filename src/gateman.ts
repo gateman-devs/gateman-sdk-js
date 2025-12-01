@@ -25,18 +25,19 @@ export class GatemanSSO {
      */
     async login(): Promise<TokenPayload> {
         try {
-            // Generate PKCE challenge first
-            const { challenge } = await generatePKCEPair();
+            // Open popup FIRST (synchronously) to avoid popup blockers
+            // Then generate PKCE and navigate the popup to the auth URL
+            const pkcePromise = generatePKCEPair();
 
-            // Build authentication URL
-            const authUrl = this.buildAuthUrl(challenge, window.location.origin);
-
-            // Open popup immediately and navigate to auth URL
-            // The popup opens with a loading screen, then navigates to the auth URL
-            // This happens synchronously to avoid popup blockers
             const authMessage = await this.windowManager.openAuthWindow(
-                authUrl,
+                async () => {
+                    const { challenge } = await pkcePromise;
+                    return this.buildAuthUrl(challenge, window.location.origin);
+                },
             );
+
+            // Get the challenge for token fetching
+            const { challenge } = await pkcePromise;
 
             // Check if authentication was successful
             if (!authMessage.success) {
